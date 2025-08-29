@@ -1,6 +1,7 @@
 #Access arxiv using url
 import requests
 import xml.etree.ElementTree as ET
+from langchain_core.tools import tool
 
 def search_arxiv_paper(topic: str,max_results: int=5) -> dict:
     query = "+".join(topic.lower().split())
@@ -58,3 +59,13 @@ def parse_arxiv_xml(xml_content: str) -> dict:
         })
     return {"entries": entries}
 
+# creating langchain tool 
+
+@tool
+def arxiv_search(topic: str) -> list[dict]:
+    papers = search_arxiv_paper(topic)
+    if(len(papers)==0):
+        print(f"No papers found for topic: {topic}")
+        raise ValueError(f"No papers found for topic: {topic}")
+    print(f"Found {len(papers['entries'])} papers about {topic}")
+    return papers
