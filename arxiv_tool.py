@@ -36,13 +36,13 @@ def parse_arxiv_xml(xml_content: str) -> dict:
     root = ET.fromstring(xml_content)
     for entry in root.findall("atom:entry",ns):
         authors = [
-            author.findtext("atom:name",namespace=ns)
+            author.findtext("atom:name",namespaces=ns)
             for author in entry.findall("atom:author",ns)
         ]
 
         categories = [
             cat.attrib.get("term")
-            for cat in entry.finall("atom:category",ns)
+            for cat in entry.findall("atom:category",ns)
         ]
 
         pdf_link = None
@@ -63,9 +63,19 @@ def parse_arxiv_xml(xml_content: str) -> dict:
 
 @tool
 def arxiv_search(topic: str) -> list[dict]:
+    """
+    Now You Can search for recently uploded papers
+    
+    Args:
+        topic: the topic to search for
+
+    Returns:
+        List of papers and metadata
+    """
     papers = search_arxiv_paper(topic)
-    if(len(papers)==0):
+    if len(papers["entries"]) == 0:
         print(f"No papers found for topic: {topic}")
         raise ValueError(f"No papers found for topic: {topic}")
+    
     print(f"Found {len(papers['entries'])} papers about {topic}")
     return papers
